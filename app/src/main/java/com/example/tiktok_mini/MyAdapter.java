@@ -22,7 +22,7 @@ import static android.provider.MediaStore.Video.Thumbnails.MINI_KIND;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
-    private List<VideoResponse> myDataset;
+    private List<VideoResponse> myDataSet;
     Context context;
 
     // Provide a reference to the views for each data item
@@ -30,21 +30,19 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     // you provide access to all the views for a data item in a view holder
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public TextView _id;
-        public TextView nickname;
+        public TextView info_brief;
         public ImageView cover;
 
         public MyViewHolder(View v) {
             super(v);
-            _id = v.findViewById(R.id._id);
-            nickname = v.findViewById(R.id.nickname);
+            info_brief = v.findViewById(R.id.info_brief);
             cover = v.findViewById(R.id.cover);
         }
     }
 
 
-    public void setData(List<VideoResponse> myDataset,Context context) {
-        this.myDataset = myDataset;
+    public void setData(List<VideoResponse> myDataSet,Context context) {
+        this.myDataSet = myDataSet;
         this.context = context;
     }
 
@@ -64,15 +62,15 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     public void onBindViewHolder(MyViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        holder._id.setText(myDataset.get(position)._id);
-        holder.nickname.setText(myDataset.get(position).nickname);
-        Glide.with(context).load(Uri.parse(myDataset.get(position).feedurl)).into(holder.cover);
+        holder.info_brief.setText(String.format(context.getResources().getString(R.string.brief_info),
+                myDataSet.get(position).description, myDataSet.get(position).nickname));
+        Glide.with(context).load(Uri.parse(myDataSet.get(position).feedurl)).into(holder.cover);
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return myDataset == null ? 0 : myDataset.size();
+        return myDataSet == null ? 0 : myDataSet.size();
     }
 
 }
