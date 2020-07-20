@@ -46,7 +46,7 @@ public class PlayerActivity extends AppCompatActivity {
         Bundle videoInfo = intent.getBundleExtra("data");
         player.setVideoPath(videoInfo.getString("feedurl"));
 
-        int seekBar_Max = 10000;
+        int seekBar_Max = 100;
         seekBar = findViewById(R.id.seekbar);
         seekBar.setMax(seekBar_Max);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

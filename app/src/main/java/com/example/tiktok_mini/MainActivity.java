@@ -71,18 +71,18 @@ public class MainActivity extends AppCompatActivity {
                 getData();
                 ObjectAnimator alphaAnimator_out = ObjectAnimator.ofFloat(animationView,"alpha",1f,0f);
                 alphaAnimator_out.setInterpolator(new LinearInterpolator());
-                alphaAnimator_out.setDuration(2000);
+                alphaAnimator_out.setDuration(1000);
 
                 ObjectAnimator alphaAnimator_in = ObjectAnimator.ofFloat(viewPager2,"alpha",0f,1f);
                 alphaAnimator_in.setInterpolator(new LinearInterpolator());
-                alphaAnimator_in.setDuration(2000);
+                alphaAnimator_in.setDuration(1000);
 
                 AnimatorSet animatorSet = new AnimatorSet();
                 animatorSet.playSequentially(alphaAnimator_out,alphaAnimator_in);
                 animatorSet.start();
             }
         };
-        handler.postDelayed(runnable,2000);
+        handler.postDelayed(runnable,1000);
     }
 
     private void getData() {
