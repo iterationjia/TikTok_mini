@@ -9,40 +9,27 @@
     <com.example.tiktok_mini.player.VideoPlayerIJK
         android:id="@+id/ijkPlayer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <SeekBar
         android:id="@+id/seekbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/textView"
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="正在播放：" />
+        android:textColor="@color/colorSpringGreen"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="00:00" />
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="00:00" />
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/buttonPlay"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Play" />
-
-    <Button
-        android:id="@+id/buttonPause"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Pause" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>>
+</androidx.constraintlayout.widget.ConstraintLayout>

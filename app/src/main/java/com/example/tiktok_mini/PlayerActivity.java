@@ -23,7 +23,7 @@ public class PlayerActivity extends AppCompatActivity {
     private VideoPlayerIJK player;
     private SeekBar seekBar;
     private TextView tv;
-    private boolean portrait;
+    private boolean playing = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,19 +103,19 @@ public class PlayerActivity extends AppCompatActivity {
 
         new TimeThread().start();
 
-        findViewById(R.id.buttonPlay).setOnClickListener(new View.OnClickListener() {
+        player.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                player.start();
+            public void onClick(View view) {
+                if (playing) {
+                    player.pause();
+                    playing = false;
+                } else {
+                    player.start();
+                    playing = true;
+                }
             }
         });
 
-        findViewById(R.id.buttonPause).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                player.pause();
-            }
-        });
     }
 
     protected String timeFormat(long millionSeconds) {
@@ -131,7 +131,13 @@ public class PlayerActivity extends AppCompatActivity {
         if (player.isPlaying()) {
             player.stop();
         }
-
+        player.release();
         IjkMediaPlayer.native_profileEnd();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
     }
 }
