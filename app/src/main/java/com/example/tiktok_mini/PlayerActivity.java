@@ -115,7 +115,6 @@ public class PlayerActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 
     protected String timeFormat(long millionSeconds) {

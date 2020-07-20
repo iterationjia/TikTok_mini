@@ -149,6 +149,8 @@ public class VideoPlayerIJK extends FrameLayout {
 
         //开启硬解码
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec", 1);
+        //开启重连
+        ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "reconnect", 1);
 
         mMediaPlayer = ijkMediaPlayer;
         ((IjkMediaPlayer) mMediaPlayer).setSpeed(3f);
