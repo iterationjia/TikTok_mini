@@ -5,9 +5,13 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -16,14 +20,25 @@ import com.example.tiktok_mini.player.VideoPlayerListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
 public class PlayerActivity extends AppCompatActivity {
     private VideoPlayerIJK player;
     private SeekBar seekBar;
     private TextView tv;
+    private Timer timer;
     private boolean playing = true;
+    private boolean isSeekBarChanging = false;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        playing = true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +47,8 @@ public class PlayerActivity extends AppCompatActivity {
         setTitle("播放器");
 
         player = findViewById(R.id.ijkPlayer);
+        seekBar = findViewById(R.id.seekbar);
+        tv = findViewById(R.id.textView);
 
         //加载native库
         try {
@@ -41,72 +58,27 @@ public class PlayerActivity extends AppCompatActivity {
             this.finish();
         }
 
-        player.setListener(new VideoPlayerListener());
         Intent intent = getIntent();
         Bundle videoInfo = intent.getBundleExtra("data");
         player.setVideoPath(videoInfo.getString("feedurl"));
-
-        int seekBar_Max = 10000;
-        seekBar = findViewById(R.id.seekbar);
-        seekBar.setMax(seekBar_Max);
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        player.setListener(new VideoPlayerListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(fromUser&&player.isPlaying()){
-                    player.seekTo(seekBar.getProgress()*player.getDuration()/seekBar_Max);
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                player.seekTo(seekBar.getProgress()*player.getDuration()/seekBar_Max);
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                player.seekTo(seekBar.getProgress()*player.getDuration()/seekBar_Max);
+            public void onPrepared(IMediaPlayer iMediaPlayer) {
+                super.onPrepared(iMediaPlayer);
+                seekBar.setMax((int)player.getDuration());
             }
         });
 
-        tv = findViewById(R.id.textView);
-
-        final Handler mHandler = new Handler(){
+        GestureDetector detector = new GestureDetector(PlayerActivity.this, new GestureDetector.SimpleOnGestureListener(){
             @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                switch (msg.what) {
-                    case 1:
-                        tv.setText(timeFormat(player.getCurrentPosition())); //更新时间
-                        if(player.getDuration()!=0) seekBar.setProgress((int)(player.getCurrentPosition()*100/player.getDuration()));
-                        break;
-                    default:
-                        break;
-
-                }
+            public boolean onDoubleTap(MotionEvent e) {
+                Toast.makeText(PlayerActivity.this, "双击事件", Toast.LENGTH_SHORT).show();
+                // 双击点赞一会再做
+                return super.onDoubleTap(e);
             }
-        };
 
-        class TimeThread extends Thread {
             @Override
-            public void run() {
-                do {
-                    try {
-                        Thread.sleep(1000);
-                        Message msg = new Message();
-                        msg.what = 1;  //消息(一个整型值)
-                        mHandler.sendMessage(msg);// 每隔1秒发送一个msg给mHandler
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                } while (true);
-            }
-        }
-
-        new TimeThread().start();
-
-        player.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+            public boolean onSingleTapConfirmed(MotionEvent e) {
                 if (playing) {
                     player.pause();
                     playing = false;
@@ -114,8 +86,42 @@ public class PlayerActivity extends AppCompatActivity {
                     player.start();
                     playing = true;
                 }
+                return super.onSingleTapConfirmed(e);
             }
         });
+        player.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return detector.onTouchEvent(motionEvent);
+            }
+        });
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                tv.setText(timeFormat(progress));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                isSeekBarChanging = true;
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                isSeekBarChanging = false;
+                int progress = seekBar.getProgress();
+                player.seekTo(progress);
+            }
+        });
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (playing && (!isSeekBarChanging)) {
+                    seekBar.setProgress((int) player.getCurrentPosition());
+                }
+            }
+        }, 0, 50);
     }
 
     protected String timeFormat(long millionSeconds) {
@@ -128,16 +134,18 @@ public class PlayerActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        if (player.isPlaying()) {
-            player.stop();
-        }
-        player.release();
-        IjkMediaPlayer.native_profileEnd();
+        playing = false;
+        player.stop();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
+        timer.cancel();
+        if (player!=null) {
+            player.release();
+        }
+        player = null;
+        IjkMediaPlayer.native_profileEnd();
     }
 }
