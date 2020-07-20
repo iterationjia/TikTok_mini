@@ -46,24 +46,25 @@ public class PlayerActivity extends AppCompatActivity {
         Bundle videoInfo = intent.getBundleExtra("data");
         player.setVideoPath(videoInfo.getString("feedurl"));
 
+        int seekBar_Max = 10000;
         seekBar = findViewById(R.id.seekbar);
-        seekBar.setMax(100);
+        seekBar.setMax(seekBar_Max);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if(fromUser&&player.isPlaying()){
-                    player.seekTo(seekBar.getProgress()*player.getDuration()/100);
+                    player.seekTo(seekBar.getProgress()*player.getDuration()/seekBar_Max);
                 }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                player.seekTo(seekBar.getProgress()*player.getDuration()/100);
+                player.seekTo(seekBar.getProgress()*player.getDuration()/seekBar_Max);
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                player.seekTo(seekBar.getProgress()*player.getDuration()/100);
+                player.seekTo(seekBar.getProgress()*player.getDuration()/seekBar_Max);
             }
         });
 
