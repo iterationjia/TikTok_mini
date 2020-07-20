@@ -1,9 +1,11 @@
 package com.example.tiktok_mini;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,11 +34,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         // each data item is just a string in this case
         public TextView info_brief;
         public ImageView cover;
+        public ImageView play;
 
         public MyViewHolder(View v) {
             super(v);
             info_brief = v.findViewById(R.id.info_brief);
             cover = v.findViewById(R.id.cover);
+            play = v.findViewById(R.id.play);
         }
     }
 
@@ -65,6 +69,17 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         holder.info_brief.setText(String.format(context.getResources().getString(R.string.brief_info),
                 myDataSet.get(position).description, myDataSet.get(position).nickname));
         Glide.with(context).load(Uri.parse(myDataSet.get(position).feedurl)).into(holder.cover);
+
+        holder.play.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context,PlayerActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("feedurl",myDataSet.get(position).feedurl);
+                intent.putExtra("data",bundle);
+                context.startActivity(intent);
+            }
+        });
     }
 
     // Return the size of your dataset (invoked by the layout manager)
