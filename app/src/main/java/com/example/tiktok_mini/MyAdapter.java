@@ -79,6 +79,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
                 Intent intent = new Intent(context,PlayerActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putString("feedurl",myDataSet.get(position).feedurl);
+                bundle.putString("avatarUrl", myDataSet.get(position).avatar);
+                bundle.putInt("likeNum", myDataSet.get(position).likecount);
                 intent.putExtra("data",bundle);
                 context.startActivity(intent);
             }

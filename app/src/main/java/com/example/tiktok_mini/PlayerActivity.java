@@ -2,6 +2,7 @@ package com.example.tiktok_mini;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -9,12 +10,14 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.example.tiktok_mini.player.VideoPlayerIJK;
 import com.example.tiktok_mini.player.VideoPlayerListener;
 
@@ -30,9 +33,14 @@ public class PlayerActivity extends AppCompatActivity {
     private VideoPlayerIJK player;
     private SeekBar seekBar;
     private TextView tv;
+    private TextView likeNumTv;
+    private ImageView likeView;
+    private ImageView avatar;
     private Timer timer;
     private boolean playing = true;
     private boolean isSeekBarChanging = false;
+    private boolean like = false;
+    private int likeNum;
 
     @Override
     protected void onStart() {
@@ -49,6 +57,9 @@ public class PlayerActivity extends AppCompatActivity {
         player = findViewById(R.id.ijkPlayer);
         seekBar = findViewById(R.id.seekbar);
         tv = findViewById(R.id.textView);
+        likeNumTv = findViewById(R.id.like_num);
+        likeView = findViewById(R.id.like_img);
+        avatar = findViewById(R.id.avatar);
 
         //加载native库
         try {
@@ -60,6 +71,12 @@ public class PlayerActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         Bundle videoInfo = intent.getBundleExtra("data");
+
+        likeNum = videoInfo.getInt("likeNum");
+        likeNumTv.setText(likeNumFormat(likeNum));
+//        avatar.setImageURI(Uri.parse(videoInfo.getString("avatarUrl")));
+        Glide.with(this).load(videoInfo.getString("avatarUrl")).into(avatar);
+
         player.setVideoPath(videoInfo.getString("feedurl"));
         player.setListener(new VideoPlayerListener() {
             @Override
@@ -72,8 +89,7 @@ public class PlayerActivity extends AppCompatActivity {
         GestureDetector detector = new GestureDetector(PlayerActivity.this, new GestureDetector.SimpleOnGestureListener(){
             @Override
             public boolean onDoubleTap(MotionEvent e) {
-                Toast.makeText(PlayerActivity.this, "双击事件", Toast.LENGTH_SHORT).show();
-                // 双击点赞一会再做
+                likeChange();
                 return super.onDoubleTap(e);
             }
 
@@ -122,6 +138,31 @@ public class PlayerActivity extends AppCompatActivity {
                 }
             }
         }, 0, 50);
+    }
+
+    private void likeChange() {
+        if (like) {
+            like = false;
+            likeNum--;
+            likeView.setImageDrawable(getDrawable(R.drawable.unlike));
+            Toast.makeText(PlayerActivity.this, "取消喜欢", Toast.LENGTH_SHORT).show();
+        } else {
+            like = true;
+            likeNum++;
+            likeView.setImageDrawable(getDrawable(R.drawable.like));
+            Toast.makeText(PlayerActivity.this, "喜欢", Toast.LENGTH_SHORT).show();
+        }
+        likeNumTv.setText(likeNumFormat(likeNum));
+    }
+
+    private String likeNumFormat(int num) {
+        if (num < 1000) {
+            return String.valueOf(num);
+        } else if (num <= 1000000) {
+            return String.valueOf(num / 1000) + '.' + String.valueOf((num % 1000) / 100) + 'k';
+        } else {
+            return String.valueOf(num / 1000000) + '.' + String.valueOf((num % 1000) / 100000) + 'm';
+        }
     }
 
     protected String timeFormat(long millionSeconds) {

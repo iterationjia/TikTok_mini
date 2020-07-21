@@ -19,6 +19,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private LinearLayoutManager layoutManager;
+    private FloatingActionButton recordBtn;
     private MyAdapter myAdapter;
     private ViewPager2 viewPager2;
     private LottieAnimationView animationView;
@@ -41,6 +43,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        recordBtn = findViewById(R.id.record_btn);
+
+        recordBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this, RecordActivity.class));
+            }
+        });
 
         //recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         viewPager2 = findViewById(R.id.viewpage2);
