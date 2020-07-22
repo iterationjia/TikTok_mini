@@ -48,25 +48,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         viewPager2 = findViewById(R.id.viewpage2);
-
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
-        //recyclerView.setHasFixedSize(true);
-
-        // use a linear layout manager
-        //layoutManager = new LinearLayoutManager(this);
-        //recyclerView.setLayoutManager(layoutManager);
-
         animationView = findViewById(R.id.animation_load);
-
         // specify an adapter (see also next example)
         myAdapter = new MyAdapter();
-
-        //recyclerView.setAdapter(myAdapter);
         viewPager2.setAdapter(myAdapter);
         viewPager2.setAlpha(0f);
+        viewPager2.setOffscreenPageLimit(3);
 
         getData();
 
@@ -88,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                 animatorSet.start();
             }
         };
-        handler.postDelayed(runnable,1000);
+        handler.postDelayed(runnable,5000);
     }
 
     private void getData() {

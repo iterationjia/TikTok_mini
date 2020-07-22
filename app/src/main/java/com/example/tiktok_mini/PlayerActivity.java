@@ -75,7 +75,11 @@ public class PlayerActivity extends AppCompatActivity {
         likeNum = videoInfo.getInt("likeNum");
         likeNumTv.setText(likeNumFormat(likeNum));
         RequestOptions mRequestOptions = RequestOptions.circleCropTransform();
-        Glide.with(this).load(videoInfo.getString("avatarUrl")).apply(mRequestOptions).into(avatar);
+        Glide.with(this)
+                .load(videoInfo.getString("avatarUrl"))
+//                .placeholder()
+                .apply(mRequestOptions)
+                .into(avatar);
 
         player.setVideoPath(videoInfo.getString("feedurl"));
         player.setListener(new VideoPlayerListener() {

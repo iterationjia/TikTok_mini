@@ -3,6 +3,7 @@ package com.example.tiktok_mini;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,10 +13,15 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
 import java.util.List;
 
@@ -49,8 +55,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         this.context = context;
 
         //趁渐入渐出的几秒，预加载所有封面（只适用于目前数据量较小的情况）
-        for(int i=0;i<myDataSet.size();i++)
-            Glide.with(context).load(Uri.parse(myDataSet.get(i).feedurl)).diskCacheStrategy(DiskCacheStrategy.ALL).preload();
+//        for(int i=0;i<myDataSet.size();i++)
+//            Glide.with(context).load(Uri.parse(myDataSet.get(i).feedurl)).diskCacheStrategy(DiskCacheStrategy.ALL).preload();
     }
 
     // Create new views (invoked by the layout manager)
@@ -75,9 +81,23 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
         holder.info_brief.setText(String.format(context.getResources().getString(R.string.brief_info),
                 myDataSet.get(position).description, myDataSet.get(position).nickname));
-        Glide.with(context).load(Uri.parse(myDataSet.get(position).feedurl)).diskCacheStrategy(DiskCacheStrategy.ALL).into(holder.cover);
+        Glide.with(context)
+                .load(Uri.parse(myDataSet.get(position).feedurl))
+//                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        return false;
+                    }
 
-        holder.play.setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        return false;
+                    }
+                })
+                .into(holder.cover);
+
+        View.OnClickListener onClickListener = new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context,PlayerActivity.class);
@@ -88,7 +108,10 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
                 intent.putExtra("data",bundle);
                 context.startActivity(intent);
             }
-        });
+        };
+        holder.play.setOnClickListener(onClickListener);
+
+        holder.cover.setOnClickListener(onClickListener);
     }
 
     // Return the size of your dataset (invoked by the layout manager)
