@@ -2,9 +2,7 @@ package com.example.tiktok_mini;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,7 +18,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
@@ -84,7 +81,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         // - replace the contents of the view with that element
 
         holder.info_brief.setText(String.format(context.getResources().getString(R.string.brief_info),
-                myDataSet.get(position).description, myDataSet.get(position).nickname));
+                myDataSet.get(position).nickname, myDataSet.get(position).description));
         Glide.with(context)
                 .load(Uri.parse(myDataSet.get(position).feedurl))
 //                .diskCacheStrategy(DiskCacheStrategy.ALL)

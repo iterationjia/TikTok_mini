@@ -1,11 +1,7 @@
 package com.example.tiktok_mini;
 
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -40,6 +36,7 @@ public class PlayerActivity extends AppCompatActivity {
     private TextView nickname;
     private ImageView likeView;
     private ImageView avatar;
+    private ImageView pause;
     private Timer timer;
     private boolean playing = true;
     private boolean isSeekBarChanging = false;
@@ -65,6 +62,7 @@ public class PlayerActivity extends AppCompatActivity {
         avatar = findViewById(R.id.avatar);
         description = findViewById(R.id.description);
         nickname = findViewById(R.id.nickname);
+        pause = findViewById(R.id.pause);
 
         //加载native库
         try {
@@ -123,9 +121,11 @@ public class PlayerActivity extends AppCompatActivity {
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 if (playing) {
                     player.pause();
+                    pause.setVisibility(View.VISIBLE);
                     playing = false;
                 } else {
                     player.start();
+                    pause.setVisibility(View.GONE);
                     playing = true;
                 }
                 return super.onSingleTapConfirmed(e);
