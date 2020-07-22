@@ -15,11 +15,10 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
-import java.io.File;
 import java.util.List;
 
-import static android.provider.MediaStore.Video.Thumbnails.MINI_KIND;
 
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
@@ -48,6 +47,10 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     public void setData(List<VideoResponse> myDataSet,Context context) {
         this.myDataSet = myDataSet;
         this.context = context;
+
+        //趁渐入渐出的几秒，预加载所有封面（只适用于目前数据量较小的情况）
+        for(int i=0;i<myDataSet.size();i++)
+            Glide.with(context).load(Uri.parse(myDataSet.get(i).feedurl)).diskCacheStrategy(DiskCacheStrategy.ALL).preload();
     }
 
     // Create new views (invoked by the layout manager)
@@ -69,9 +72,10 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     public void onBindViewHolder(MyViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
+
         holder.info_brief.setText(String.format(context.getResources().getString(R.string.brief_info),
                 myDataSet.get(position).description, myDataSet.get(position).nickname));
-        Glide.with(context).load(Uri.parse(myDataSet.get(position).feedurl)).into(holder.cover);
+        Glide.with(context).load(Uri.parse(myDataSet.get(position).feedurl)).diskCacheStrategy(DiskCacheStrategy.ALL).into(holder.cover);
 
         holder.play.setOnClickListener(new View.OnClickListener(){
             @Override

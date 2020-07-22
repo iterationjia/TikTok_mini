@@ -138,7 +138,6 @@ public class VideoPlayerIJK extends FrameLayout {
 
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
         }
 
         @Override
