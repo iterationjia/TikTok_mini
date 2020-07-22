@@ -52,7 +52,6 @@ public class PlayerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
-        setTitle("播放器");
 
         player = findViewById(R.id.ijkPlayer);
         seekBar = findViewById(R.id.seekbar);
@@ -173,10 +172,22 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onRestart() {
+        super.onRestart();
+        this.finish();
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         playing = false;
         player.stop();
+        timer.cancel();
+        if (player!=null) {
+            player.release();
+        }
+        player = null;
+        IjkMediaPlayer.native_profileEnd();
     }
 
     @Override
