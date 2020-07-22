@@ -18,6 +18,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.tiktok_mini.player.VideoPlayerIJK;
 import com.example.tiktok_mini.player.VideoPlayerListener;
 
@@ -74,8 +75,8 @@ public class PlayerActivity extends AppCompatActivity {
 
         likeNum = videoInfo.getInt("likeNum");
         likeNumTv.setText(likeNumFormat(likeNum));
-//        avatar.setImageURI(Uri.parse(videoInfo.getString("avatarUrl")));
-        Glide.with(this).load(videoInfo.getString("avatarUrl")).into(avatar);
+        RequestOptions mRequestOptions = RequestOptions.circleCropTransform();
+        Glide.with(this).load(videoInfo.getString("avatarUrl")).apply(mRequestOptions).into(avatar);
 
         player.setVideoPath(videoInfo.getString("feedurl"));
         player.setListener(new VideoPlayerListener() {
@@ -83,6 +84,13 @@ public class PlayerActivity extends AppCompatActivity {
             public void onPrepared(IMediaPlayer iMediaPlayer) {
                 super.onPrepared(iMediaPlayer);
                 seekBar.setMax((int)player.getDuration());
+            }
+
+            @Override
+            public void onVideoSizeChanged(IMediaPlayer iMediaPlayer, int i, int i1, int i2, int i3) {
+                Log.d("change", "aaa");
+                super.onVideoSizeChanged(iMediaPlayer, i, i1, i2, i3);
+                player.changeSurfaceView();
             }
         });
 
@@ -111,6 +119,7 @@ public class PlayerActivity extends AppCompatActivity {
                 return detector.onTouchEvent(motionEvent);
             }
         });
+
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {

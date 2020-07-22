@@ -6,6 +6,8 @@ import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
@@ -82,11 +84,44 @@ public class VideoPlayerIJK extends FrameLayout {
         //生成一个新的surface view
         surfaceView = new SurfaceView(mContext);
         surfaceView.getHolder().addCallback(new PlayerSurfaceCallback());
-        ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
-                , ViewGroup.LayoutParams.MATCH_PARENT);
+        LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT
+                , LayoutParams.MATCH_PARENT, Gravity.CENTER);
         surfaceView.setLayoutParams(layoutParams);
         this.addView(surfaceView);
         hasCreateSurfaceView = true;
+    }
+
+    public void changeSurfaceView() {
+        int surfaceWidth=surfaceView.getWidth();
+        int surfaceHeight=surfaceView.getHeight();
+        int videoWidth = mMediaPlayer.getVideoWidth();
+        int videoHeight = mMediaPlayer.getVideoHeight();
+
+        Log.d("change", "DDD");
+
+        //根据视频尺寸去计算->视频可以在sufaceView中放大的最大倍数。
+        float max;
+//        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+            //竖屏模式下按视频宽度计算放大倍数值
+            max = Math.max((float) videoWidth / (float) surfaceWidth, (float) videoHeight / (float) surfaceHeight);
+//        } else {
+//            //横屏模式下按视频高度计算放大倍数值
+//            max = Math.max(((float) videoWidth / (float) surfaceHeight), (float) videoHeight / (float) surfaceWidth);
+//        }
+
+        //视频宽高分别/最大倍数值 计算出放大后的视频尺寸
+        videoWidth = (int) Math.ceil((float) videoWidth / max);
+        videoHeight = (int) Math.ceil((float) videoHeight / max);
+
+        //无法直接设置视频尺寸，将计算出的视频尺寸设置到surfaceView 让视频自动填充。
+//        if (getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+//            RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(videoWidth, videoHeight);
+//            layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
+//            surfaceView.setLayoutParams(layoutParams);
+//        } else {
+//            surfaceView.setLayoutParams(new LinearLayout.LayoutParams(videoWidth, videoHeight));
+//        }
+        surfaceView.setLayoutParams(new LayoutParams(videoWidth, videoHeight, Gravity.CENTER));
     }
 
     /**
@@ -162,6 +197,7 @@ public class VideoPlayerIJK extends FrameLayout {
             mMediaPlayer.setOnSeekCompleteListener(listener);
             mMediaPlayer.setOnBufferingUpdateListener(listener);
             mMediaPlayer.setOnErrorListener(listener);
+            mMediaPlayer.setOnVideoSizeChangedListener(listener);
         }
     }
 
@@ -170,6 +206,7 @@ public class VideoPlayerIJK extends FrameLayout {
         this.listener = listener;
         if (mMediaPlayer != null) {
             mMediaPlayer.setOnPreparedListener(listener);
+            mMediaPlayer.setOnVideoSizeChangedListener(listener);
         }
     }
 
