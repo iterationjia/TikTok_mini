@@ -15,28 +15,36 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import java.io.File;
+
 public class RecordActivity extends AppCompatActivity {
 
     private final int RECORD_PERMISSION = 1;
     private final int REQUEST_VIDEO_CAPTURE = 2;
 
-    private Button saveBtn;
     private Button redoBtn;
     private Button uploadBtn;
     private VideoView recordView;
+    private Uri videoUri;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record);
         recordView = findViewById(R.id.record_view);
-        saveBtn = findViewById(R.id.save_record_btn);
         redoBtn = findViewById(R.id.re_record_btn);
         uploadBtn = findViewById(R.id.upload_btn);
-        uploadBtn.setOnClickListener(view -> {
-            Toast.makeText(RecordActivity.this, "暂未开放", Toast.LENGTH_SHORT).show();
-        });
+        uploadBtn.setOnClickListener(view ->
+            Toast.makeText(RecordActivity.this, "暂未开放", Toast.LENGTH_SHORT).show()
+        );
+        redoBtn.setOnClickListener(view -> callRecorder());
         checkPermissions();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        recordView.start();
     }
 
     private void checkPermissions() {
@@ -77,11 +85,17 @@ public class RecordActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
             Toast.makeText(RecordActivity.this, "视频已保存到系统相册", Toast.LENGTH_SHORT).show();
-            Uri videoUri = data.getData();
+            videoUri = data.getData();
             recordView.setVideoURI(videoUri);
             recordView.start();
         } else {
             RecordActivity.this.finish();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        recordView = null;
     }
 }

@@ -12,10 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -40,12 +42,18 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         public TextView info_brief;
         public ImageView cover;
         public ImageView play;
+        public LottieAnimationView animationView;
 
         public MyViewHolder(View v) {
             super(v);
             info_brief = v.findViewById(R.id.info_brief);
             cover = v.findViewById(R.id.cover);
             play = v.findViewById(R.id.play);
+            animationView = v.findViewById(R.id.animation_load);
+
+            info_brief.setVisibility(View.INVISIBLE);
+            cover.setVisibility(View.INVISIBLE);
+            play.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -53,10 +61,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     public void setData(List<VideoResponse> myDataSet,Context context) {
         this.myDataSet = myDataSet;
         this.context = context;
-
-        //趁渐入渐出的几秒，预加载所有封面（只适用于目前数据量较小的情况）
-//        for(int i=0;i<myDataSet.size();i++)
-//            Glide.with(context).load(Uri.parse(myDataSet.get(i).feedurl)).diskCacheStrategy(DiskCacheStrategy.ALL).preload();
     }
 
     // Create new views (invoked by the layout manager)
@@ -87,11 +91,16 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
                 .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        Toast.makeText(context, "加载失败", Toast.LENGTH_SHORT).show();
                         return false;
                     }
 
                     @Override
                     public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        holder.info_brief.setVisibility(View.VISIBLE);
+                        holder.cover.setVisibility(View.VISIBLE);
+                        holder.play.setVisibility(View.VISIBLE);
+                        holder.animationView.setVisibility(View.GONE);
                         return false;
                     }
                 })
@@ -102,9 +111,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             public void onClick(View v) {
                 Intent intent = new Intent(context,PlayerActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("feedurl",myDataSet.get(position).feedurl);
+                bundle.putString("feedurl", myDataSet.get(position).feedurl);
                 bundle.putString("avatarUrl", myDataSet.get(position).avatar);
                 bundle.putInt("likeNum", myDataSet.get(position).likecount);
+                bundle.putString("description", myDataSet.get(position).description);
+                bundle.putString("nickname", myDataSet.get(position).nickname);
                 intent.putExtra("data",bundle);
                 context.startActivity(intent);
             }

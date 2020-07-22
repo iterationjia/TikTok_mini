@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -35,6 +36,8 @@ public class PlayerActivity extends AppCompatActivity {
     private SeekBar seekBar;
     private TextView tv;
     private TextView likeNumTv;
+    private TextView description;
+    private TextView nickname;
     private ImageView likeView;
     private ImageView avatar;
     private Timer timer;
@@ -60,6 +63,8 @@ public class PlayerActivity extends AppCompatActivity {
         likeNumTv = findViewById(R.id.like_num);
         likeView = findViewById(R.id.like_img);
         avatar = findViewById(R.id.avatar);
+        description = findViewById(R.id.description);
+        nickname = findViewById(R.id.nickname);
 
         //加载native库
         try {
@@ -72,12 +77,22 @@ public class PlayerActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle videoInfo = intent.getBundleExtra("data");
 
+        description.setText(videoInfo.getString("description"));
+        description.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+        description.setSingleLine(true);
+        description.setSelected(true);
+        description.setFocusable(true);
+        description.setFocusableInTouchMode(true);
+        nickname.setText('@' + videoInfo.getString("nickname"));
         likeNum = videoInfo.getInt("likeNum");
         likeNumTv.setText(likeNumFormat(likeNum));
+        likeView.setOnClickListener(view -> likeChange());
+        avatar.setOnClickListener(view -> Toast.makeText(PlayerActivity.this,
+                "用户名：" + videoInfo.getString("nickname"), Toast.LENGTH_SHORT).show());
         RequestOptions mRequestOptions = RequestOptions.circleCropTransform();
         Glide.with(this)
                 .load(videoInfo.getString("avatarUrl"))
-//                .placeholder()
+                .placeholder(R.drawable.user)
                 .apply(mRequestOptions)
                 .into(avatar);
 

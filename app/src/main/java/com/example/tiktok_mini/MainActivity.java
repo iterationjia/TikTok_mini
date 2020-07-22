@@ -1,17 +1,12 @@
 package com.example.tiktok_mini;
 
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.LinearInterpolator;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -27,12 +22,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerView;
-    private LinearLayoutManager layoutManager;
     private FloatingActionButton recordBtn;
     private MyAdapter myAdapter;
     private ViewPager2 viewPager2;
-    private LottieAnimationView animationView;
+    private LottieAnimationView mainLoader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         recordBtn = findViewById(R.id.record_btn);
+        mainLoader = findViewById(R.id.main_load);
 
         recordBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -49,34 +43,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         viewPager2 = findViewById(R.id.viewpage2);
-        animationView = findViewById(R.id.animation_load);
-        // specify an adapter (see also next example)
         myAdapter = new MyAdapter();
         viewPager2.setAdapter(myAdapter);
-        viewPager2.setAlpha(0f);
-        viewPager2.setOffscreenPageLimit(3);
+        viewPager2.setOffscreenPageLimit(5);
 
         getData();
-
-        Handler handler = new Handler();
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                getData();
-                ObjectAnimator alphaAnimator_out = ObjectAnimator.ofFloat(animationView,"alpha",1f,0f);
-                alphaAnimator_out.setInterpolator(new LinearInterpolator());
-                alphaAnimator_out.setDuration(1000);
-
-                ObjectAnimator alphaAnimator_in = ObjectAnimator.ofFloat(viewPager2,"alpha",0f,1f);
-                alphaAnimator_in.setInterpolator(new LinearInterpolator());
-                alphaAnimator_in.setDuration(1000);
-
-                AnimatorSet animatorSet = new AnimatorSet();
-                animatorSet.playSequentially(alphaAnimator_out,alphaAnimator_in);
-                animatorSet.start();
-            }
-        };
-        handler.postDelayed(runnable,5000);
     }
 
     private void getData() {
@@ -97,11 +68,14 @@ public class MainActivity extends AppCompatActivity {
                         myAdapter.notifyDataSetChanged();
                     }
                 }
+                // 这个是网络请求的加载动画消失，不是加载封面图的动画消失
+                mainLoader.setVisibility(View.GONE);
             }
 
             @Override
             public void onFailure(Call<List<VideoResponse>> call, Throwable t) {
                 Log.d("retrofit",t.getMessage());
+                Toast.makeText(MainActivity.this, "请检查网络", Toast.LENGTH_SHORT).show();
             }
         });
 
